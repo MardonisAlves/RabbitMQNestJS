@@ -16,7 +16,7 @@ export class AppController {
       transport: Transport.RMQ,
       options:{
         //urls: ['amqp://user:Dd1ZtU4Q8IT1@54.82.54.169:5672/smartrank'],
-         urls: ['amqp://admin:admin@localhost:5672'],
+         urls: ['	amqps://admin:h2szqHJUT0B8WVV8JQIuZINfauOmaKLc@dphkbz.stackhero-network.com:5671'],
         queue:'filas_martrank',
         queueOptions: {
           durable: true
