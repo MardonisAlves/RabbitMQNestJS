@@ -23,6 +23,10 @@ export class AppController {
       }
     })
   }
+  @Get('/home')
+  async pageHome() :Promise<string>{
+    return 'Hello';
+  }
 
   @Post('categorias')
   @UsePipes(ValidationPipe)
@@ -33,7 +37,7 @@ async  criarcategoria(@Body() criarCategoriaDto: CriarCategoriaDto){
 
 @Get('categorias')
    consultarCategorias(@Query('idCategoria') _id: string): Observable<any>{
-    return ;
-    //return this.clientAdminBackend.send('consultar-categorias', _id ? _id:'')
+    
+    return this.clientAdminBackend.send('consultar-categorias', _id ? _id:'')
   }
 }
