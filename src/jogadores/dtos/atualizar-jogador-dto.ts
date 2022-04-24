@@ -7,4 +7,16 @@ export class AtualizarJogadorDto {
 	
 	@IsNotEmpty()
 	readonly email:string;
+
+	@IsNotEmpty()
+	readonly nome:string;
+
+	@IsNotEmpty()
+	readonly ranking:string;
+
+	@IsNotEmpty()
+	readonly posicaoRanking:string;
+
+	@IsNotEmpty()
+	readonly urlFotoJogador:string; 
 }

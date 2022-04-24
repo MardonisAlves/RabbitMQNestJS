@@ -1,5 +1,6 @@
-import { Controller, Post, Get, Res, Logger,Body, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Post, Get, Put, Res, Logger,Body, Query, Param, UsePipes, ValidationPipe } from '@nestjs/common';
 import {CriarJogadorDto} from './dtos/criar-jogador-dto';
+import {AtualizarJogadorDto} from './dtos/atualizar-jogador-dto';
 import {GetjogadorByEmail} from './dtos//getjogador-email-dto';
 import {ClienteProxySmartRank} from '../proxyrmq/cliente-proxy';
 import { Observable } from 'rxjs';
@@ -16,9 +17,7 @@ private  clientAdminBackend = this.ClienteProxySmartRank.getClienteProxyBackendI
 async criarjogador(@Body() criarJogadorDto:CriarJogadorDto, @Res() response:Response){
 	try{
 		const { email } = criarJogadorDto
-		console.log(email)
 		const emailJogador = await this.clientAdminBackend.send('getjogador-email', {email:criarJogadorDto.email}).toPromise();
-		console.log(emailJogador)
 		if(emailJogador === null){
 			const criarjogador = await this.clientAdminBackend.emit('new-jogador',criarJogadorDto);
 			return response.json({'jogador': 'Jogador  cadastrado'});
@@ -39,5 +38,16 @@ getjogadores(@Query('_id') _id:string) :Observable<any>{
 @UsePipes(ValidationPipe)
 getjogadorByEmail(@Query() email:GetjogadorByEmail): Observable<any>{
 		return this.clientAdminBackend.send('getjogador-email', email)
+}
+
+@Put('jogadores/:_id')
+@UsePipes(ValidationPipe)
+atualizarJogador(@Body() atualizarJogadorDto:AtualizarJogadorDto, @Param() _id:string){
+	try{
+	
+	return this.clientAdminBackend.send('atualizar-jogador',{atualizarJogadorDto,_id})
+	}catch(error){
+		this.logger.log(error)
+	}
 }
 }
