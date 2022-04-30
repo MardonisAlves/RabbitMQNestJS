@@ -1,15 +1,22 @@
-import { Controller, Post, Get, Put, Delete, Res, Logger, Body, Query, Param, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Post, Get, Put, Delete, Res, Logger, Body, Query, Param, UsePipes, ValidationPipe, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { CriarJogadorDto } from './dtos/criar-jogador-dto';
 import { AtualizarJogadorDto } from './dtos/atualizar-jogador-dto';
 import { GetjogadorByEmail } from './dtos//getjogador-email-dto';
 import { ClienteProxySmartRank } from '../proxyrmq/cliente-proxy';
 import { Observable } from 'rxjs';
 import { Response } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { AwsService } from '../aws/aws.service';
+
+
 @Controller('api/v1')
 export class JogadoresController {
 	private logger = new Logger(JogadoresController.name);
 
-	constructor(private ClienteProxySmartRank: ClienteProxySmartRank) { }
+	constructor(
+		private ClienteProxySmartRank: ClienteProxySmartRank,
+		private awsService: AwsService
+	) { }
 	private clientAdminBackend = this.ClienteProxySmartRank.getClienteProxyBackendInstance()
 
 	@Post('jogadores')
@@ -19,7 +26,7 @@ export class JogadoresController {
 			const { email } = criarJogadorDto
 			const emailJogador = await this.clientAdminBackend.send('getjogador-email', { email: criarJogadorDto.email }).toPromise();
 			if (emailJogador === null) {
-				const criarjogador = await this.clientAdminBackend.emit('new-jogador', criarJogadorDto);
+				const criarjogador = this.clientAdminBackend.emit('new-jogador', criarJogadorDto);
 				return response.json({ 'jogador': 'Jogador  cadastrado' });
 			} else {
 				return response.json({ 'jogador': 'Jogador ja cadastrado' });
@@ -27,6 +34,35 @@ export class JogadoresController {
 		} catch (error) {
 			console.log(error)
 		}
+	}
+
+	@Post('/:_id/upload')
+	@UseInterceptors(FileInterceptor('file'))
+	async uploadArquivo(
+		@UploadedFile() file: any,
+		@Param('_id') _id: string
+	) {
+		try {
+			const idJogador = await this.getjogadores(_id).toPromise();
+			if (idJogador._id) {
+				const data = await this.awsService.uploadarquivos3(file, _id);
+				if (data.url) {
+					console.log(data)
+					const urlJogador = await this.clientAdminBackend.send('atualizar-avatar', { _id, urlFotoJogador: data.url }).toPromise()
+					return urlJogador;
+
+				}
+			} else {
+				return {
+					jogador: 'Jogador não cadastrado'
+				}
+			}
+
+		} catch (error) {
+			console.log(error)
+		}
+
+
 	}
 
 	@Get('jogadores')
@@ -44,7 +80,6 @@ export class JogadoresController {
 	@UsePipes(ValidationPipe)
 	atualizarJogador(@Body() atualizarJogadorDto: AtualizarJogadorDto, @Param() _id: string) {
 		try {
-
 			return this.clientAdminBackend.send('atualizar-jogador', { atualizarJogadorDto, _id })
 		} catch (error) {
 			this.logger.log(error)
