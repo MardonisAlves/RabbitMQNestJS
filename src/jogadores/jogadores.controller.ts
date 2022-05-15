@@ -48,8 +48,11 @@ export class JogadoresController {
 				const data = await this.awsService.uploadarquivos3(file, _id);
 				if (data.url) {
 					console.log(data)
+
 					const urlJogador = await this.clientAdminBackend.send('atualizar-avatar', { _id, urlFotoJogador: data.url }).toPromise()
-					return urlJogador;
+					const getJogador = await this.clientAdminBackend.send('jogadores', _id ? _id : '').toPromise();
+
+					return getJogador;
 
 				}
 			} else {

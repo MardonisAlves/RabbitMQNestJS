@@ -1,15 +1,19 @@
 import { Injectable, Logger, Param } from '@nestjs/common';
 import * as AWS from 'aws-sdk';
+
+
 @Injectable()
 export class AwsService {
     private logger = new Logger(AwsService.name);
 
+    constructor(){}
+
     async uploadarquivos3(file: any, id: string) {
       
         const s3 = new AWS.S3({
-            region: 'us-east-1',
-            accessKeyId: 'AKIAU2PL74B46USQVOYH',
-            secretAccessKey: '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'
+            region: process.env.AWS_REGION,
+            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
         })
 
         const fileExtenssion = file.originalname.split('.')[1];
@@ -19,7 +23,7 @@ export class AwsService {
      
         const params: any = {
             Body: file.buffer,
-            Bucket: 'smartrank',
+            Bucket: process.env.AWS_S3_BUCKET_NAME,
             Key: urlkey
         }
         
