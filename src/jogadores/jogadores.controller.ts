@@ -7,8 +7,9 @@ import { Observable } from 'rxjs';
 import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AwsService } from '../aws/aws.service';
+import { ApiTags } from '@nestjs/swagger';
 
-
+@ApiTags('users')
 @Controller('api/v1')
 export class JogadoresController {
 	private logger = new Logger(JogadoresController.name);
@@ -81,7 +82,7 @@ export class JogadoresController {
 
 	@Put('jogadores/:_id')
 	@UsePipes(ValidationPipe)
-	atualizarJogador(@Body() atualizarJogadorDto: AtualizarJogadorDto, @Param() _id: string) {
+	atualizarJogador(@Body() atualizarJogadorDto: AtualizarJogadorDto, @Param('_id') _id: string) {
 		try {
 			return this.clientAdminBackend.send('atualizar-jogador', { atualizarJogadorDto, _id })
 		} catch (error) {
@@ -90,7 +91,7 @@ export class JogadoresController {
 	}
 
 	@Delete('jogador/:_id')
-	deletarJogador(@Param() _id: string) {
+	deletarJogador(@Param('_id') _id: string) {
 		try {
 			return this.clientAdminBackend.send('deletar-jogador', _id)
 		} catch (error) {

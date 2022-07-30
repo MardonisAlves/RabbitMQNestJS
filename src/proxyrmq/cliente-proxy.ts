@@ -9,7 +9,7 @@ export  class ClienteProxySmartRank{
 	return ClientProxyFactory.create({
       transport: Transport.RMQ,
       options:{
-        urls: ['amqp://admin:admin@localhost:5672'],
+        urls: ['amqp://guest:guest@localhost:5672'],
         queue:'filas_martrank',
         queueOptions: {
           durable: true

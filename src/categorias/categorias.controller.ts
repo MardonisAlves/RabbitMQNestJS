@@ -41,7 +41,7 @@ atualizarCategoria(@Body() atualizarCategoriaDto: AtualizarCategoriaDto,
 
 @Delete('categoria/:_id')
 @UsePipes(ValidationPipe)
-deletarCategoria(@Param() _id:string){
+deletarCategoria(@Param('_id') _id:string){
 this.clientAdminBackend.emit('deletar-categoria',{_id})
 
 }
