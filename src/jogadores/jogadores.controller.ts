@@ -8,7 +8,9 @@ import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AwsService } from '../aws/aws.service';
 import { ApiTags } from '@nestjs/swagger';
-import Zenvia from './dtos/zenvia-dtos';
+import { User } from 'src/users/entities/user.entity';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+
 
 
 @ApiTags('jogadores')
@@ -100,5 +102,16 @@ export class JogadoresController {
 			this.logger.log(error)
 		}
 
+	}
+
+
+	@Post('send/email')
+	async sendEmail(@Body() user:CreateUserDto){
+		try {
+			return await this.clientAdminBackend.send('email',user);
+		} catch (error) {
+			console.log(error);
+			
+		}
 	}
 }
