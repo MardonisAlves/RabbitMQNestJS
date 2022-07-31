@@ -3,7 +3,9 @@ import { CriarCategoriaDto } from './dtos/criar-categoria.dto';
 import { AtualizarCategoriaDto } from './dtos/atualizar-categoria.dto';
 import {ClienteProxySmartRank} from '../proxyrmq/cliente-proxy';
 import { Observable } from 'rxjs';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Categorias')
 @Controller('api/v1')
 export class CategoriasController {
     private logger = new Logger(CategoriasController.name)

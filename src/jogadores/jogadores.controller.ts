@@ -8,8 +8,10 @@ import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AwsService } from '../aws/aws.service';
 import { ApiTags } from '@nestjs/swagger';
+import Zenvia from './dtos/zenvia-dtos';
 
-@ApiTags('users')
+
+@ApiTags('jogadores')
 @Controller('api/v1')
 export class JogadoresController {
 	private logger = new Logger(JogadoresController.name);

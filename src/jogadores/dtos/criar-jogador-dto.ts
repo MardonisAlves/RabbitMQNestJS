@@ -2,6 +2,7 @@ import {IsNotEmpty ,IsEmail} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CriarJogadorDto {
+	
 	@ApiProperty({
 		example:"85 992590075"
 	})
