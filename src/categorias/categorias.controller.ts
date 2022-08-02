@@ -20,7 +20,7 @@ export class CategoriasController {
   @Post('categorias')
   @UsePipes(ValidationPipe)
 async  criarcategoria(@Body() criarCategoriaDto: CriarCategoriaDto){
-      await this.clientAdminBackend.emit('criar-categoria', criarCategoriaDto)
+    return   this.clientAdminBackend.emit('criar-categoria', criarCategoriaDto)
   }
 
 

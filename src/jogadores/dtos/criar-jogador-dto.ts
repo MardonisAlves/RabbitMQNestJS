@@ -1,5 +1,6 @@
 import {IsNotEmpty ,IsEmail} from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiResponse } from '@nestjs/swagger';
+
 
 export class CriarJogadorDto {
 	

@@ -7,9 +7,9 @@ import { Observable } from 'rxjs';
 import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AwsService } from '../aws/aws.service';
-import { ApiTags } from '@nestjs/swagger';
-import { User } from 'src/users/entities/user.entity';
+import { ApiCreatedResponse, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import responseCriatejogador from './response/response-create-jogador';
 
 
 
@@ -25,6 +25,9 @@ export class JogadoresController {
 	private clientAdminBackend = this.ClienteProxySmartRank.getClienteProxyBackendInstance()
 
 	@Post('jogadores')
+	@ApiResponse({
+		type:responseCriatejogador
+	})
 	@UsePipes(ValidationPipe)
 	async criarjogador(@Body() criarJogadorDto: CriarJogadorDto, @Res() response: Response) {
 		try {
@@ -32,9 +35,9 @@ export class JogadoresController {
 			const emailJogador = await this.clientAdminBackend.send('getjogador-email', { email: criarJogadorDto.email }).toPromise();
 			if (emailJogador === null) {
 				const criarjogador = this.clientAdminBackend.emit('new-jogador', criarJogadorDto);
-				return response.json({ 'jogador': 'Jogador  cadastrado' });
+				return response.json({ 'message': 'Jogador  cadastrado' ,success:true});
 			} else {
-				return response.json({ 'jogador': 'Jogador ja cadastrado' });
+				return response.json({ 'message': 'Jogador ja cadastrado', success:false});
 			}
 		} catch (error) {
 			console.log(error)
@@ -48,15 +51,13 @@ export class JogadoresController {
 		@Param('_id') _id: string
 	) {
 		try {
-			const idJogador = await this.getjogadores(_id).toPromise();
-			if (idJogador._id) {
+			const idJogador =  this.getjogadores(_id).pipe();
+			if (_id) {
 				const data = await this.awsService.uploadarquivos3(file, _id);
 				if (data.url) {
-					console.log(data)
-
-					const urlJogador = await this.clientAdminBackend.send('atualizar-avatar', { _id, urlFotoJogador: data.url }).toPromise()
-					const getJogador = await this.clientAdminBackend.send('jogadores', _id ? _id : '').toPromise();
-
+					const urlJogador =  this.clientAdminBackend.send('atualizar-avatar', { _id, urlFotoJogador: data.url })
+					.pipe()
+					const getJogador =  this.clientAdminBackend.send('jogadores', _id ? _id : '').pipe();
 					return getJogador;
 
 				}
@@ -74,7 +75,10 @@ export class JogadoresController {
 	}
 
 	@Get('jogadores')
-	getjogadores(@Query('_id') _id: string): Observable<any> {
+	@ApiResponse({
+		type:responseCriatejogador
+	})
+	getjogadores(@Query('_id') _id: string ): Observable<any> {
 		return this.clientAdminBackend.send('jogadores', _id ? _id : '')
 	}
 
@@ -106,12 +110,14 @@ export class JogadoresController {
 
 
 	@Post('send/email')
-	async sendEmail(@Body() user:CreateUserDto){
+	@ApiCreatedResponse({
+		type:CreateUserDto
+	})
+	async sendEmail(@Body() user:CreateUserDto):Promise<any>{
 		try {
-			return await this.clientAdminBackend.send('email',user);
+			return  this.clientAdminBackend.send('email',user);
 		} catch (error) {
 			console.log(error);
-			
 		}
 	}
 }
