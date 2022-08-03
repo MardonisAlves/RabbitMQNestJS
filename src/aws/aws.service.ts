@@ -1,5 +1,6 @@
 import { Injectable, Logger, Param } from '@nestjs/common';
 import * as AWS from 'aws-sdk';
+import getJogadores from 'src/jogadores/dtos/get-jogadores-dtos';
 
 
 @Injectable()
@@ -8,7 +9,7 @@ export class AwsService {
 
     constructor(){}
 
-    async uploadarquivos3(file: any, id: string) {
+    async uploadarquivos3(file: any, id: getJogadores) {
       
         const s3 = new AWS.S3({
             region: process.env.AWS_REGION,
