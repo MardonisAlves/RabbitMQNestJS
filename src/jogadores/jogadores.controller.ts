@@ -3,11 +3,11 @@ import { CriarJogadorDto } from './dtos/criar-jogador-dto';
 import { AtualizarJogadorDto } from './dtos/atualizar-jogador-dto';
 import { GetjogadorByEmail } from './dtos//getjogador-email-dto';
 import { ClienteProxySmartRank } from '../proxyrmq/cliente-proxy';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { response, Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AwsService } from '../aws/aws.service';
-import { ApiCreatedResponse, ApiInternalServerErrorResponse, ApiOkResponse, ApiPropertyOptional, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiOkResponse, ApiPropertyOptional, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import responseCriatejogador from './response/response-create-jogador';
 import getJogadores from './dtos/get-jogadores-dtos';
@@ -59,20 +59,34 @@ export class JogadoresController {
 
 	@Post('/:_id/upload')
 	@UseInterceptors(FileInterceptor('file'))
+	@ApiConsumes('multipart/form-data')
+	@ApiBody({
+		schema: {
+		  type: 'object',
+		  properties: {
+			file: { 
+			  type: 'string',
+			  format: 'binary',
+			},
+		  },
+		},
+	  })
 	async uploadArquivo(
-		@UploadedFile() file: any,
-		@Param('_id') _id: getJogadores
+		@UploadedFile() file: Express.Multer.File,
+		@Param() _id: getJogadores
 	) {
 		try {
+		console.log(_id._id);
+		
 			const idJogador = this.getjogadores(_id).pipe();
-			if (_id) {
-				const data = await this.awsService.uploadarquivos3(file, _id);
+			console.log(idJogador);
+			
+			if (_id._id !== '') {
+				const data = await this.awsService.uploadarquivos3(file, _id._id);
+				console.log(data);
+				
 				if (data.url) {
-					const urlJogador = this.clientAdminBackend.send('atualizar-avatar', { _id, urlFotoJogador: data.url })
-						.pipe()
-					const getJogador = this.clientAdminBackend.send('jogadores', _id ? _id : '').pipe();
-					return getJogador;
-
+					return await firstValueFrom( this.clientAdminBackend.send('atualizar-avatar', { _id, urlFotoJogador: data.url }))
 				}
 			} else {
 				return {
@@ -143,3 +157,5 @@ export class JogadoresController {
 		}
 	}
 }
+
+

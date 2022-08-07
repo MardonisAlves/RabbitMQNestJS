@@ -9,7 +9,7 @@ export class AwsService {
 
     constructor(){}
 
-    async uploadarquivos3(file: any, id: getJogadores) {
+    async uploadarquivos3(file: any, id: string) {
       
         const s3 = new AWS.S3({
             region: process.env.AWS_REGION,
